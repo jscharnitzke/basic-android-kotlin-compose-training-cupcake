@@ -2,6 +2,8 @@ package com.example.cupcake.test
 
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -33,17 +35,25 @@ class CupcakeScreenNavigationTest {
 
     private fun navigateToFlavorScreen() {
         composeTestRule.onNodeWithStringId(R.string.one_cupcake).performClick()
+    }
+
+    private fun selectOptionOnFlavorScreen() {
         composeTestRule.onNodeWithStringId(R.string.chocolate).performClick()
     }
 
     private fun navigateToPickupScreen() {
         navigateToFlavorScreen()
+        selectOptionOnFlavorScreen()
         composeTestRule.onNodeWithStringId(R.string.next).performClick()
+    }
+
+    private fun selectOptionOnPickupScreen() {
+        composeTestRule.onNodeWithText(getFormattedDate()).performClick()
     }
 
     private fun navigateToSummaryScreen() {
         navigateToPickupScreen()
-        composeTestRule.onNodeWithText(getFormattedDate()).performClick()
+        selectOptionOnPickupScreen()
         composeTestRule.onNodeWithStringId(R.string.next).performClick()
     }
 
@@ -128,5 +138,31 @@ class CupcakeScreenNavigationTest {
         navigateToSummaryScreen()
         performCancel()
         navController.assertCurrentRouteName(CupcakeScreen.Start.name)
+    }
+
+    @Test
+    fun cupcakeNavHost_verifyFlavorNextButtonDisabledWithoutSelection() {
+        navigateToFlavorScreen()
+        composeTestRule.onNodeWithStringId(R.string.next).assertIsNotEnabled()
+    }
+
+    @Test
+    fun cupcakeNavHost_selectFlavor_enablesNextButton() {
+        navigateToFlavorScreen()
+        selectOptionOnFlavorScreen()
+        composeTestRule.onNodeWithStringId(R.string.next).assertIsEnabled()
+    }
+
+    @Test
+    fun cupcakeNavHost_verifyPickupNextButtonDisabledWithoutSelection() {
+        navigateToPickupScreen()
+        composeTestRule.onNodeWithStringId(R.string.next).assertIsNotEnabled()
+    }
+
+    @Test
+    fun cupcakeNavHost_selectPickupDate_enablesNextButton() {
+        navigateToPickupScreen()
+        selectOptionOnPickupScreen()
+        composeTestRule.onNodeWithStringId(R.string.next).assertIsEnabled()
     }
 }
